@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: helpdesk-ingress
+  namespace: helpdesk
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: helpdesk.civilisation-it.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: helpdesk-svc
+                port:
+                  number: 80
+  tls:
+  - hosts:
+    - helpdesk.civilisation-it.fr
+    secretName: helpdesk-civilisation-it-fr-site-cert
