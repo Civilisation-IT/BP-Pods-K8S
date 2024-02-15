@@ -76,8 +76,6 @@ spec:
                 command: ["sleep", "60"]
         - name: mysql
           image: mysql:latest
-          ports:
-            - containerPort: 3306
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: root
@@ -101,3 +99,29 @@ spec:
         - name: mysql-pvc
           persistentVolumeClaim:
             claimName: mysql-pvc
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: helpdesk-ingress
+  namespace: helpdesk
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: helpdesk.yourdomain.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: helpdesk-svc
+                port:
+                  number: 80
+  tls:
+  - hosts:
+    - helpdesk.yourdomain.fr
+    secretName: helpdesk-your-domain-fr-site-cert
